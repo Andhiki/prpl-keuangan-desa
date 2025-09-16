@@ -7,6 +7,115 @@ Setiap sub-modul dikerjakan oleh kelompok yang telah ditentukan.
 
 ---
 
+## Tech Stacks
+
+- 
+
+## Prerequisites
+
+- Node.js 18.x or later (LTS or Long Terms Support)
+- pnpm for package managers (mandatory for all devs)
+
+## Getting Started
+
+1. Install dependencies:
+
+```bash
+pnpm install
+```
+
+2. Run the development server:
+
+```bash
+pnpm dev
+```
+
+3. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Available Scripts
+
+- `pnpm dev` - Start development server with Turbopack
+- `pnpm build` - Build the application for production
+- `pnpm start` - Start the production server
+- `pnpm lint` - Run ESLint
+- `pnpm type-check` - Run TypeScript type checking
+- `pnpm format` - Format Prettier for All Files
+- `pnpm gas` - To format, then build, then start
+
+## Project Structure
+
+```
+public/
+├── assets/       # All assets in website
+src/
+├── app/          # Next.js app directory
+├── components/   # Create reusbale components here
+├── collections/  # PayloadCMS collections
+├── i18n/         # Internationalization setup
+├── messages/     # Translation messages (id / en)
+├── styles/       # Global styles
+└── utils/        # Utility functions
+```
+
+## How to Start Coding?
+
+1. git clone https://github.com/itiier/iier-website
+2. cd to ur team folder
+3. git checkout dev
+4. git checkout -b feature/rab-desa
+
+5. Follow TypeScript best practices
+
+## Development Guidelines
+
+1. Don't code in branch dev
+2. Code in your team branch, then submit a pr if want to update in dev branch
+3. make sure to pull origin and pnpm build before push to origin
+
+## Commit Message Guidelines
+
+Follow these guidelines when writing commit messages:
+
+### Format
+
+See [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) to see how we structure our commit messages.
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Types
+
+```
+- `feat`: New feature (Most Often)
+- `fix`: Bug fix (Most Often)
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, etc.)
+- `refactor`: Code refactoring
+- `test`: Adding or modifying tests
+- `chore`: Maintenance tasks
+
+```
+
+### Examples
+
+```
+feat(auth): add Google OAuth login
+fix(api): resolve user data fetching error
+docs(readme): update installation steps
+style(ui): format button components
+refactor(utils): optimize data processing
+test(api): add user authentication tests
+chore(deps): update dependencies
+
+```
+
+---
+
 ## 📑 Daftar Sub-Modul & Anggota Kelompok
 
 ### 1. Buku Rencana Anggaran Biaya
