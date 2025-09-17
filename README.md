@@ -59,7 +59,7 @@ src/
 
 ## How to Start Coding?
 
-1. git clone https://github.com/itiier/iier-website
+1. git clone [https://github.com/Andhiki/prpl-keuangan-desa.git](https://github.com/Andhiki/prpl-keuangan-desa.git)
 2. cd to ur team folder
 3. git checkout dev
 4. git checkout -b feature/rab-desa
