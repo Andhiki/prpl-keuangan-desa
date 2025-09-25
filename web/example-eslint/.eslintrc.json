@@ -1,0 +1,7 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript", "prettier"],
+  "plugins": ["prettier", "react", "jsx-a11y", "import", "react-hooks"],
+  "rules": {
+    "prettier/prettier": "error"
+  }
+}
