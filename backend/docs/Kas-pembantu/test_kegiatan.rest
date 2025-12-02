@@ -5,6 +5,7 @@
 
 ### --- AUTHENTICATION (Jalankan Pertama!) ---
 ### Login untuk mendapatkan cookie auth
+# @name loginAdmin
 POST http://localhost:8081/api/auth/login
 Content-Type: application/json
 
@@ -179,3 +180,118 @@ GET http://localhost:8081/api/kas-pembantu/kegiatan/export
 ### Expected: 401 Unauthorized
 # GET http://localhost:8081/api/kas-pembantu/kegiatan
 # (Test manual: buka URL di browser baru tanpa login)
+
+### ============================================
+### TEST CASE 9: BUSINESS LOGIC & VALIDATION
+### Menguji aturan main akuntansi & tipe data
+### ============================================
+
+### TC9.1: Create dengan "Double Entry" (Logic Error)
+### Logic: Seharusnya tidak boleh ada Penerimaan DAN Pengeluaran di satu transaksi.
+### Backend harus menolak atau punya prioritas logic.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
+Content-Type: application/json
+
+{
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Ambigu Masuk Keluar",
+  "no_bukti": "QA-LOGIC-01",
+  "penerimaan_bendahara": "500000.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "500000.00",
+  "pengeluaran_modal": "0.00"
+}
+
+### TC9.2: Create dengan Nilai String pada Field Angka (Data Type)
+### Logic: Mengirim teks "satu juta" ke field harga. Backend harus return 400.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
+Content-Type: application/json
+
+{
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Invalid Number",
+  "no_bukti": "QA-TYPE-01",
+  "penerimaan_bendahara": "satu juta rupiah", 
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "0.00",
+  "pengeluaran_modal": "0.00"
+}
+
+### TC9.3: Create dengan Nilai Negatif (Boundary Value)
+### Logic: Uang tidak bisa minus di input transaksi manual.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
+Content-Type: application/json
+
+{
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Negative Value",
+  "no_bukti": "QA-MINUS-01",
+  "penerimaan_bendahara": "-500000.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "0.00",
+  "pengeluaran_modal": "0.00"
+}
+
+### ============================================
+### TEST CASE 10: REFERENTIAL INTEGRITY
+### Menguji relasi antar tabel (Foreign Key)
+### ============================================
+
+### TC10.1: Create dengan type_enum (Kode Kegiatan) yang TIDAK ADA
+### Logic: Kode '99.99.99' tidak ada di master data. Backend harus menolak.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
+Content-Type: application/json
+
+{
+  "bku_id": "bku010",
+  "type_enum": "99.99.99",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Kode Ghaib",
+  "no_bukti": "QA-REF-01",
+  "penerimaan_bendahara": "0.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "100000.00",
+  "pengeluaran_modal": "0.00"
+}
+
+### ============================================
+### TEST CASE 11: DUPLICATE & CONSTRAINTS
+### Menguji keunikan data
+### ============================================
+
+### TC11.1: Create Data Kembar (Duplicate No Bukti)
+### Logic: Coba POST dua kali dengan 'no_bukti' yang sama persis.
+### Backend harusnya error (biasanya 409 Conflict atau 400).
+POST http://localhost:8081/api/kas-pembantu/kegiatan
+Content-Type: application/json
+
+{
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Duplicate Check",
+  "no_bukti": "BUKTI-UNIK-001",
+  "penerimaan_bendahara": "0.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "100000.00",
+  "pengeluaran_modal": "0.00"
+}
+
+### ============================================
+### TEST CASE 12: FILTERING (Query Params)
+### Menguji fitur pencarian
+### ============================================
+
+### TC12.1: Filter by Sub Bidang ID
+GET http://localhost:8081/api/kas-pembantu/kegiatan?subBidangId=1
+
+
+### TC12.2: Search by Keyword Uraian
+# @ref loginAdmin
+GET http://localhost:8081/api/kas-pembantu/kegiatan?q=ATK

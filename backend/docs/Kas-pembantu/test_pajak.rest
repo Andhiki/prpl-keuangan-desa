@@ -4,6 +4,7 @@
 ### ============================================
 
 ### --- AUTHENTICATION (Jalankan Pertama!) ---
+# @name loginAdmin
 POST http://localhost:8081/api/auth/login
 Content-Type: application/json
 
@@ -220,5 +221,94 @@ Content-Type: application/json
   "uraian": "Test dengan nilai decimal",
   "no_bukti": "QA-TAX-EDGE-002",
   "pemotongan": 123456.789,
+  "penyetoran": 0.00
+}
+
+
+### ============================================
+### TEST CASE 9: Business Logic Constraints
+### Menguji aturan main akuntansi
+### ============================================
+
+### TC9.1: Create dengan Pemotongan DAN Penyetoran sekaligus
+### Logic: Biasanya satu transaksi itu entah 'masuk' atau 'keluar'. 
+### Kalau dua-duanya diisi angka, sistem harusnya menolak atau menghitung selisih?
+POST http://localhost:8081/api/kas-pembantu/pajak
+Authorization: Bearer <token_disini>
+Content-Type: application/json
+
+{
+  "bku_id": "bku004",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Ambigu Input",
+  "no_bukti": "QA-TAX-AMBIGU",
+  "pemotongan": 500000.00,
+  "penyetoran": 500000.00
+}
+
+### TC9.2: Create dengan Tanggal Masa Depan (Future Date)
+### Logic: Apakah boleh mencatat pajak untuk tahun 2099? 
+### Terkadang validasi membatasi hanya boleh tahun anggaran berjalan.
+POST http://localhost:8081/api/kas-pembantu/pajak
+Authorization: Bearer <token_disini>
+Content-Type: application/json
+
+{
+  "bku_id": "bku004",
+  "tanggal": "2099-12-31",
+  "uraian": "QA Test: Future Date",
+  "no_bukti": "QA-TAX-FUTURE",
+  "pemotongan": 100000.00,
+  "penyetoran": 0.00
+}
+
+### ============================================
+### TEST CASE 10: Filtering & Search (Query Params)
+### Menguji kemampuan backend menyaring data
+### ============================================
+
+### TC10.1: Filter berdasarkan Rentang Tanggal (Date Range)
+### Cek apakah backend mendukung filter ini (sangat umum di keuangan)
+GET http://localhost:8081/api/kas-pembantu/pajak?startDate=2025-01-01&endDate=2025-01-31
+Authorization: Bearer <token_disini>
+
+### TC10.2: Filter/Search berdasarkan Keyword Uraian
+### Mencari transaksi spesifik, misal "PPh"
+GET http://localhost:8081/api/kas-pembantu/pajak?q=PPh
+Authorization: Bearer <token_disini>
+
+### ============================================
+### TEST CASE 11: Security & Injection Check
+### Menguji ketahanan input (Sanitization)
+### ============================================
+
+### TC11.1: SQL Injection Attempt pada field 'no_bukti'
+### Expected: 400 Bad Request atau tersimpan sebagai string biasa (Aman).
+### Failed: Jika server 500 Error atau data base bocor.
+POST http://localhost:8081/api/kas-pembantu/pajak
+Authorization: Bearer <token_disini>
+Content-Type: application/json
+
+{
+  "bku_id": "bku004",
+  "tanggal": "2025-01-15",
+  "uraian": "Test SQL Injection",
+  "no_bukti": "QA'; DROP TABLE pajak; --", 
+  "pemotongan": 10000.00,
+  "penyetoran": 0.00
+}
+
+### TC11.2: XSS Injection pada field 'uraian'
+### Coba masukkan script HTML/JS. Backend harusnya membersihkan ini atau frontend yang handle.
+POST http://localhost:8081/api/kas-pembantu/pajak
+Authorization: Bearer <token_disini>
+Content-Type: application/json
+
+{
+  "bku_id": "bku004",
+  "tanggal": "2025-01-15",
+  "uraian": "<script>alert('Hacked')</script>",
+  "no_bukti": "QA-XSS-001",
+  "pemotongan": 10000.00,
   "penyetoran": 0.00
 }

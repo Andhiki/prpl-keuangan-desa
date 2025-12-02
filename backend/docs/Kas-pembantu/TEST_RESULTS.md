@@ -67,19 +67,19 @@
 
 | Test ID | Description | Expected | Actual | Status |
 |---------|-------------|----------|--------|--------|
-| TC-P-01 | GET all panjar | 200 + Array | | |
-| TC-P-02 | GET by valid ID | 200 + Object | | |
-| TC-P-03 | GET by invalid ID | 404 | | |
-| TC-P-04 | POST pemberian | 201 Created | | |
-| TC-P-05 | POST pertanggungjawaban | 201 Created | | |
-| TC-P-06 | POST missing tanggal | 400 Bad Request | | |
-| TC-P-07 | POST missing bku_id | 400 Bad Request | | |
-| TC-P-08 | POST invalid bku_id | 400/404 | | |
-| TC-P-09 | PUT valid update | 200 OK | | |
-| TC-P-10 | PUT invalid ID | 404 | | |
-| TC-P-11 | DELETE valid ID | 200/204 | | |
-| TC-P-12 | DELETE invalid ID | 404 | | |
-| TC-P-13 | Export to Excel | 200 + File | | |
+| TC | GET - List Semua Kegiatan | 200 + Array | | |
+| TC | GET by valid ID | 200 + Object | | |
+| TC | GET by invalid ID | 404 | | |
+| TC | POST pemberian | 201 Created | | |
+| TC | POST pertanggungjawaban | 201 Created | | |
+| TC | POST missing tanggal | 400 Bad Request | | |
+| TC | POST missing bku_id | 400 Bad Request | | |
+| TC | POST invalid bku_id | 400/404 | | |
+| TC | PUT valid update | 200 OK | | |
+| TC | PUT invalid ID | 404 | | |
+| TC | DELETE valid ID | 200/204 | | |
+| TC | DELETE invalid ID | 404 | | |
+| TC | Export to Excel | 200 + File | | |
 
 **Module Pass Rate:** XX%
 

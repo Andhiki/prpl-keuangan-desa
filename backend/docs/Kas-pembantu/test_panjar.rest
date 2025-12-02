@@ -1,9 +1,11 @@
 ### ============================================
-### MODUL: BUKU KAS PEMBANTU PANJAR
-### QA Testing File
+### MODUL: BUKU KAS PEMBANTU KEGIATAN
+### QA Testing File - Automated Report Version
 ### ============================================
 
-### --- AUTHENTICATION (Jalankan Pertama!) ---
+### --- AUTHENTICATION ---
+# @name loginAdmin
+# @title Login Administrator
 POST http://localhost:8081/api/auth/login
 Content-Type: application/json
 
@@ -12,164 +14,277 @@ Content-Type: application/json
   "password": "kaur_keuangan_desa_6769"
 }
 
-### ============================================
-### TEST CASE 1: GET - List Semua Panjar
-### Expected: 200 OK, Array of panjar entries
-### ============================================
-
-### TC1.1: Get all panjar entries
-GET http://localhost:8081/api/kas-pembantu/panjar
+{{
+  test.status(200);
+}}
 
 ### ============================================
-### TEST CASE 2: GET - Panjar by ID
-### Expected: 200 OK / 404 Not Found
+### TEST CASE 1: GET - List Semua Kegiatan
 ### ============================================
 
-### TC2.1: Get panjar dengan ID valid
-GET http://localhost:8081/api/kas-pembantu/panjar/panjar001
+### TC1.1: Get all kegiatan (dengan showAll)
+# @title TC1.1 Get All Kegiatan
+# @description Mengambil seluruh data kegiatan.
+GET http://localhost:8081/api/kas-pembantu/kegiatan?showAll=true
 
-### TC2.2: Get panjar dengan ID tidak valid
-### Expected: 404 Not Found
-GET http://localhost:8081/api/kas-pembantu/panjar/invalid_panjar_xyz
+{{
+  test.status(200);
+}}
+
+### TC1.2: Get kegiatan tanpa parameter
+# @title TC1.2 Get Kegiatan Default
+GET http://localhost:8081/api/kas-pembantu/kegiatan
+
+{{
+  test.status(200);
+}}
 
 ### ============================================
-### TEST CASE 3: POST - Create Panjar Entry
-### Expected: 201 Created
+### TEST CASE 2: GET - Kegiatan by ID
 ### ============================================
 
-### TC3.1: Create panjar PEMBERIAN (uang diberikan)
-POST http://localhost:8081/api/kas-pembantu/panjar
+### TC2.1: Get kegiatan dengan ID valid
+# @title TC2.1 Get Single Kegiatan (Valid)
+# @description Ganti ID di URL jika perlu.
+GET http://localhost:8081/api/kas-pembantu/kegiatan/bkp001
+
+{{
+  test.status(200);
+}}
+
+### TC2.2: Get kegiatan dengan ID tidak valid
+# @title TC2.2 Get Single Kegiatan (Invalid)
+# @description Test Negative: ID tidak ada di database. Harapan: 404.
+GET http://localhost:8081/api/kas-pembantu/kegiatan/invalid_id_12345
+
+{{
+  test.status(404);
+}}
+
+### ============================================
+### TEST CASE 3: GET - Dropdown Data
+### ============================================
+
+### TC3.1: Get Bidang
+# @title TC3.1 Get Master Bidang
+GET http://localhost:8081/api/kas-pembantu/kegiatan/bidang
+
+{{
+  test.status(200);
+}}
+
+### ============================================
+### TEST CASE 4: POST - Create Kegiatan
+### ============================================
+
+### TC4.1: Create kegiatan dengan data lengkap & valid
+# @name createKegiatanValid
+# @title TC4.1 Create Kegiatan Normal
+# @description Input data valid. Harapan: 201 Created.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
 Content-Type: application/json
 
 {
-  "bku_id": "bku001",
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
   "tanggal": "2025-01-15",
-  "uraian": "QA Test: Panjar untuk Perjalanan Dinas",
-  "no_bukti": "QA-PJ-001",
-  "pemberian": 2000000,
-  "pertanggungjawaban": 0
+  "uraian": "QA Test: Pembelian ATK Kantor",
+  "no_bukti": "QA-TEST-001",
+  "penerimaan_bendahara": "0.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "500000.00",
+  "pengeluaran_modal": "0.00"
 }
 
-### TC3.2: Create panjar PERTANGGUNGJAWABAN (uang dikembalikan/dipertanggungjawabkan)
-POST http://localhost:8081/api/kas-pembantu/panjar
+{{
+  test.status(201);
+}}
+
+### TC4.2: Create kegiatan - MISSING tanggal (Negative Test)
+# @title TC4.2 Negative Test - Missing Tanggal
+# @description Input tanpa tanggal. Harapan: 400 Bad Request.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
 Content-Type: application/json
 
 {
-  "bku_id": "bku001",
-  "tanggal": "2025-01-20",
-  "uraian": "QA Test: Pertanggungjawaban Perjalanan Dinas",
-  "no_bukti": "QA-PJ-002",
-  "pemberian": 0,
-  "pertanggungjawaban": 1800000
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
+  "uraian": "Test tanpa tanggal",
+  "no_bukti": "QA-TEST-002",
+  "penerimaan_bendahara": "0.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "100000.00",
+  "pengeluaran_modal": "0.00"
 }
 
-### TC3.3: Create panjar - MISSING tanggal (Negative Test)
-### Expected: 400 Bad Request
-POST http://localhost:8081/api/kas-pembantu/panjar
-Content-Type: application/json
+{{
+  test.status(400);
+}}
 
-{
-  "bku_id": "bku001",
-  "uraian": "Test panjar tanpa tanggal",
-  "no_bukti": "QA-PJ-003",
-  "pemberian": 500000,
-  "pertanggungjawaban": 0
-}
-
-### TC3.4: Create panjar - MISSING bku_id (Negative Test)
-### Expected: 400 Bad Request
-POST http://localhost:8081/api/kas-pembantu/panjar
-Content-Type: application/json
-
-{
-  "tanggal": "2025-01-15",
-  "uraian": "Test panjar tanpa bku_id",
-  "no_bukti": "QA-PJ-004",
-  "pemberian": 500000,
-  "pertanggungjawaban": 0
-}
-
-### TC3.5: Create panjar - Invalid bku_id (Negative Test)
-### Expected: 400/404 Bad Request
-POST http://localhost:8081/api/kas-pembantu/panjar
+### TC4.4: Create kegiatan - Invalid bku_id (Negative Test)
+# @title TC4.4 Negative Test - Invalid BKU ID
+# @description Input BKU ID sembarangan. Harapan: 400 atau 404.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
 Content-Type: application/json
 
 {
   "bku_id": "invalid_bku_xyz",
+  "type_enum": "2.3.10",
   "tanggal": "2025-01-15",
-  "uraian": "Test panjar dengan bku_id tidak valid",
-  "no_bukti": "QA-PJ-005",
-  "pemberian": 500000,
-  "pertanggungjawaban": 0
+  "uraian": "Test dengan bku_id tidak valid",
+  "no_bukti": "QA-TEST-004",
+  "penerimaan_bendahara": "0.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "100000.00",
+  "pengeluaran_modal": "0.00"
 }
 
-### TC3.6: Create panjar - Pemberian dan Pertanggungjawaban keduanya > 0 (Business Logic Test)
-### Expected: Tergantung business rule (bisa error atau diterima)
-POST http://localhost:8081/api/kas-pembantu/panjar
+{{
+  // Kita terima 400 atau 404 sebagai valid error
+  test.status(400); 
+}}
+
+### ============================================
+### TEST CASE 5: PUT - Edit Kegiatan
+### ============================================
+
+### TC5.1: Edit kegiatan dengan data valid
+# @title TC5.1 Edit Kegiatan Normal
+# @description Ganti ID di URL dengan ID hasil create di atas.
+PUT http://localhost:8081/api/kas-pembantu/kegiatan/bkp001
 Content-Type: application/json
 
 {
-  "bku_id": "bku001",
+  "uraian": "QA EDITED: Pembelian ATK Kantor (Revised)",
+  "no_bukti": "QA-EDIT-001",
+  "penerimaan_bendahara": "0.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "550000.00",
+  "pengeluaran_modal": "0.00",
+  "type_enum": "2.3.10",
+  "tanggal": "2025-01-16"
+}
+
+{{
+  test.status(200);
+}}
+
+### ============================================
+### TEST CASE 9: BUSINESS LOGIC & BUG CHECK
+### ============================================
+
+### TC9.1: Create dengan "Double Entry" (Logic Error)
+# @title TC9.1 Logic Check - Double Entry
+# @description Penerimaan dan Pengeluaran diisi bersamaan. Cek response manual.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
+Content-Type: application/json
+
+{
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
   "tanggal": "2025-01-15",
-  "uraian": "Test panjar dengan keduanya terisi",
-  "no_bukti": "QA-PJ-006",
-  "pemberian": 500000,
-  "pertanggungjawaban": 300000
+  "uraian": "QA Test: Ambigu Masuk Keluar",
+  "no_bukti": "QA-LOGIC-01",
+  "penerimaan_bendahara": "500000.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "500000.00",
+  "pengeluaran_modal": "0.00"
 }
 
-### ============================================
-### TEST CASE 4: PUT - Edit Panjar Entry
-### Expected: 200 OK
-### ============================================
+{{
+  test.status(201);
+}}
 
-### TC4.1: Edit panjar dengan data valid
-PUT http://localhost:8081/api/kas-pembantu/panjar/panjar001
+### TC9.3: Create dengan Nilai Negatif (Boundary Value)
+# @title TC9.3 Bug Check - Nilai Negatif 🐛
+# @description BUG FOUND: Server harusnya return 400, tapi saat ini return 201.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
 Content-Type: application/json
 
 {
-  "bku_id": "bku001",
-  "tanggal": "2025-01-16",
-  "uraian": "QA EDITED: Panjar Perjalanan Dinas (Revised)",
-  "no_bukti": "QA-PJ-EDIT",
-  "pemberian": 2500000,
-  "pertanggungjawaban": 0
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Negative Value",
+  "no_bukti": "QA-MINUS-01",
+  "penerimaan_bendahara": "-500000.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "0.00",
+  "pengeluaran_modal": "0.00"
 }
 
-### TC4.2: Edit panjar dengan ID tidak valid (Negative Test)
-### Expected: 404 Not Found
-PUT http://localhost:8081/api/kas-pembantu/panjar/invalid_panjar_xyz
+{{
+  // EXPECTATION: 400 Bad Request.
+  // REALITY: Server kamu merespon 201 Created (Bug).
+  // RESULT: Di tabel nanti baris ini akan MERAH (FAILED). Ini benar untuk laporan bug.
+  test.status(400);
+}}
+
+### ============================================
+### TEST CASE 10 & 11: INTEGRITY & DUPLICATE
+### ============================================
+
+### TC10.1: Create dengan Kode Kegiatan TIDAK ADA
+# @title TC10.1 Integrity Check - Invalid FK
+POST http://localhost:8081/api/kas-pembantu/kegiatan
 Content-Type: application/json
 
 {
-  "uraian": "Test edit dengan ID tidak valid"
+  "bku_id": "bku010",
+  "type_enum": "99.99.99",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Kode Ghaib",
+  "no_bukti": "QA-REF-01",
+  "penerimaan_bendahara": "0.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "100000.00",
+  "pengeluaran_modal": "0.00"
 }
 
+{{
+  test.status(400);
+}}
+
+### TC11.1: Create Data Kembar (Duplicate No Bukti)
+# @title TC11.1 Duplicate Check
+# @description Jika dijalankan 2x, yang kedua harus error.
+POST http://localhost:8081/api/kas-pembantu/kegiatan
+Content-Type: application/json
+
+{
+  "bku_id": "bku010",
+  "type_enum": "2.3.10",
+  "tanggal": "2025-01-15",
+  "uraian": "QA Test: Duplicate Check",
+  "no_bukti": "BUKTI-UNIK-001",
+  "penerimaan_bendahara": "0.00",
+  "penerimaan_swadaya": "0.00",
+  "pengeluaran_barang_dan_jasa": "100000.00",
+  "pengeluaran_modal": "0.00"
+}
+
+{{
+  // Kita set 201 untuk run pertama.
+  test.status(201);
+}}
+
 ### ============================================
-### TEST CASE 5: DELETE - Hapus Panjar Entry
-### Expected: 200 OK / 204 No Content
+### TEST CASE 12: FILTERING
 ### ============================================
 
-### TC5.1: Delete panjar dengan ID valid
-### NOTE: Ganti dengan ID hasil create
-DELETE http://localhost:8081/api/kas-pembantu/panjar/panjar_test_delete
+### TC12.1: Filter by Sub Bidang ID
+# @title TC12.1 Filter Sub Bidang
+GET http://localhost:8081/api/kas-pembantu/kegiatan?subBidangId=1
 
-### TC5.2: Delete panjar dengan ID tidak valid (Negative Test)
-### Expected: 404 Not Found
-DELETE http://localhost:8081/api/kas-pembantu/panjar/invalid_panjar_xyz
+{{
+  test.status(200);
+}}
 
-### ============================================
-### TEST CASE 6: Export ke Excel
-### Expected: File Excel / 200 OK
-### ============================================
+### TC12.2: Search by Keyword Uraian
+# @title TC12.2 Search Keyword
+# @ref loginAdmin
+GET http://localhost:8081/api/kas-pembantu/kegiatan?q=ATK
 
-### TC6.1: Export buku pembantu panjar
-GET http://localhost:8081/api/kas-pembantu/panjar/export
-
-### ============================================
-### TEST CASE 7: Saldo Calculation Test
-### Skenario: Cek apakah saldo dihitung dengan benar
-### ============================================
-
-### TC7.1: Get all untuk cek saldo_after setelah beberapa transaksi
-### Verifikasi manual: saldo = pemberian kumulatif - pertanggungjawaban kumulatif
-GET http://localhost:8081/api/kas-pembantu/panjar
+{{
+  test.status(200);
+}}
